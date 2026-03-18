@@ -96,14 +96,22 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
-// ------------------- 模拟第三方 SDK -------------------
-const mockSDK = {
-  track: (eventName, properties) => {
-    console.log(`[MockSDK] ${eventName}`, properties)
-    // 实际接入时替换为真实SDK调用，例如：
-    // window.gio('track', eventName, properties)
+// // ------------------- 模拟第三方 SDK -------------------
+// const mockSDK = {
+//   track: (eventName, properties) => {
+//     console.log(`[MockSDK] ${eventName}`, properties)
+//     // 实际接入时替换为真实SDK调用，例如：
+//     // window.gio('track', eventName, properties)
+//   }
+// }
+// ------------------- 真实 Matomo 事件发送 -------------------
+const sendMatomoEvent = (category, action, name, value = null) => {
+  if (window._paq) {
+    window._paq.push(['trackEvent', category, action, name, value]);
+  } else {
+    console.warn('Matomo _paq not found');
   }
-}
+};
 
 // ------------------- 响应式数据 -------------------
 const userId = ref(`blog_tester_${Math.floor(Math.random() * 10000)}`) // 模拟独立用户
@@ -135,7 +143,7 @@ const trackEvent = (eventName, params = {}) => {
     params: fullParams
   })
   // 调用第三方SDK
-  mockSDK.track(eventName, fullParams)
+  //mockSDK.track(eventName, fullParams)
 }
 
 // 清除日志
@@ -173,72 +181,95 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  // 4. 用户离开页面，计算停留时长（秒）
-  const duration = Math.round((Date.now() - startTime.value) / 1000)
+  const duration = Math.round((Date.now() - startTime.value) / 1000);
   trackEvent('project_leave_workbench', {
-    page: 'project',
-    block: 'all',
-    seat: 'view',
-    duration_seconds: duration,
-    view_start: startTime.value
-  })
-})
+    page: 'project', block: 'all', seat: 'view',
+    duration_seconds: duration, view_start: startTime.value
+  });
+
+  // 发送停留时长事件
+  sendMatomoEvent(
+    'project:all:view',
+    'page_duration',
+    '停留时长',
+    duration   // 以秒为单位的数值
+  );
+});
 
 // ------------------- 交互事件埋点 -------------------
 // 点击「我的收藏 / 近期任务」
 const handleExistClick = (viewName, seatType) => {
-  activeView.value = seatType
+  activeView.value = seatType;
   trackEvent('project_exist_click', {
-    page: 'project',
-    block: 'view',
-    seat: seatType,          // 'collect' 或 'recent'
-    view_name: viewName
-  })
-}
+    page: 'project', block: 'view', seat: seatType, view_name: viewName
+  });
+
+  // 发送真实 Matomo 事件
+  sendMatomoEvent(
+    'project:view',           // 类别
+    'click_existing_view',    // 动作
+    viewName,                 // 名称（如“我的收藏”）
+    null                      // 值（不需要）
+  );
+};
 
 // 进入任务（区分项目卡片与动态工作流）
 const handleEnterTask = (task, source) => {
   if (source === 'project') {
     trackEvent('project_task_enter', {
-      page: 'project',
-      block: 'view',
-      seat: 'task',
-      enter_task: 1,
-      task_id: task.id,
-      task_name: task.name
-    })
+      page: 'project', block: 'view', seat: 'task',
+      enter_task: 1, task_id: task.id, task_name: task.name
+    });
+
+    sendMatomoEvent(
+      'project:view:task',
+      'enter_task',
+      task.name,
+      1   // 可选的数值，表示一次进入
+    );
   } else {
-    // 动态工作流进入任务（自定义事件名，您可根据实际需求调整）
+    // 动态工作流
     trackEvent('dynamic_workflow_enter_task', {
-      page: 'project',
-      block: 'workflow',
-      seat: 'task',
-      enter_task: 1,
-      task_id: task.id,
-      task_name: task.name
-    })
+      page: 'project', block: 'workflow', seat: 'task',
+      enter_task: 1, task_id: task.id, task_name: task.name
+    });
+
+    sendMatomoEvent(
+      'workflow:task',
+      'enter_task',
+      task.name,
+      1
+    );
   }
-}
+};
 
 // 卡片内添加视图
 const handleAddView = () => {
   trackEvent('project_view_add_click', {
-    page: 'dashboard',        // 注意这里 page 是 dashboard
-    block: 'project',
-    seat: 'view',
-    add_view: 1
-  })
-}
+    page: 'dashboard', block: 'project', seat: 'view', add_view: 1
+  });
+
+  sendMatomoEvent(
+    'dashboard:project:view',
+    'add_view_click',
+    '新增视图',
+    1
+  );
+};
 
 // 视图内添加任务
 const handleAddTaskToView = () => {
   trackEvent('project_view_task_add', {
-    page: 'project',
-    block: 'all',
-    seat: 'view',
-    add_task_to_view: 1
-  })
-}
+    page: 'project', block: 'all', seat: 'view', add_task_to_view: 1
+  });
+
+  sendMatomoEvent(
+    'project:all:view',
+    'add_task_to_view_click',
+    '视图内添加任务',
+    1
+  );
+};
 </script>
 
 <style scoped>
