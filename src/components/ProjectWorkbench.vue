@@ -97,7 +97,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 // // ------------------- 模拟第三方 SDK -------------------
-// const mockSDK = {
+// const mockSDK = {.        
 //   track: (eventName, properties) => {
 //     console.log(`[MockSDK] ${eventName}`, properties)
 //     // 实际接入时替换为真实SDK调用，例如：
@@ -196,7 +196,7 @@ onBeforeUnmount(() => {
   );
 });
 
-// ------------------- 交互事件埋点 -------------------
+// ------------------- 交互事件埋点 ------------------
 // 点击「我的收藏 / 近期任务」
 const handleExistClick = (viewName, seatType) => {
   activeView.value = seatType;
