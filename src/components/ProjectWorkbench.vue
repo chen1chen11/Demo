@@ -93,17 +93,18 @@
   </div>
 </template>
 
-<script setup>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5F34DZEVC5"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-5F34DZEVC5');
+</script>
+<script>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
-// // ------------------- 模拟第三方 SDK -------------------
-// const mockSDK = {.        
-//   track: (eventName, properties) => {
-//     console.log(`[MockSDK] ${eventName}`, properties)
-//     // 实际接入时替换为真实SDK调用，例如：
-//     // window.gio('track', eventName, properties)
-//   }
-// }
 // ------------------- 真实 Matomo 事件发送 -------------------
 const sendMatomoEvent = (category, action, name, value = null) => {
   if (window._paq) {
