@@ -2,7 +2,7 @@
   <div class="workbench-container">
     <!-- 头部信息 -->
     <header class="header">
-      <h1>📘 博客工作台 · 埋点测试 Demo</h1>
+      <h1>📘 工作台 · 埋点测试 Demo</h1>
       <p class="user-info">当前测试用户 ID：<strong>{{ userId }}</strong> (固定于本次会话)</p>
     </header>
 
