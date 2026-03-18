@@ -105,6 +105,14 @@ const sendMatomoEvent = (category, action, name, value = null) => {
     console.warn('Matomo _paq not found');
   }
 };
+// ------------------- 真实 GA4 事件发送 -------------------
+const sendGA4Event = (eventName, params = {}) => {
+  if (window.gtag) {
+    window.gtag('event', eventName, params);
+  } else {
+    console.warn('gtag not found');
+  }
+};
 
 // ------------------- 响应式数据 -------------------
 const userId = ref(`blog_tester_${Math.floor(Math.random() * 10000)}`) // 模拟独立用户
@@ -187,6 +195,12 @@ onBeforeUnmount(() => {
     '停留时长',
     duration   // 以秒为单位的数值
   );
+   // GA4
+  sendGA4Event('page_duration', {
+    event_category: 'project:all:view',
+    event_label: '停留时长',
+    value: duration
+  });
 });
 
 // ------------------- 交互事件埋点 ------------------
@@ -204,6 +218,11 @@ const handleExistClick = (viewName, seatType) => {
     viewName,                 // 名称（如“我的收藏”）
     null                      // 值（不需要）
   );
+  // GA4
+  sendGA4Event('click_existing_view', {
+    event_category: 'project:view',
+    event_label: viewName
+  });
 };
 
 // 进入任务（区分项目卡片与动态工作流）
@@ -220,6 +239,14 @@ const handleEnterTask = (task, source) => {
       task.name,
       1   // 可选的数值，表示一次进入
     );
+    // GA4
+    sendGA4Event('enter_task', {
+      event_category: 'project:view:task',
+      event_label: task.name,
+      value: 1,
+      task_id: task.id
+    });
+
   } else {
     // 动态工作流
     trackEvent('dynamic_workflow_enter_task', {
@@ -248,6 +275,12 @@ const handleAddView = () => {
     '新增视图',
     1
   );
+  // GA4
+  sendGA4Event('add_view_click', {
+    event_category: 'dashboard:project:view',
+    event_label: '新增视图',
+    value: 1
+  });
 };
 
 // 视图内添加任务
@@ -262,6 +295,12 @@ const handleAddTaskToView = () => {
     '视图内添加任务',
     1
   );
+  // GA4
+  sendGA4Event('add_task_to_view_click', {
+    event_category: 'project:all:view',
+    event_label: '视图内添加任务',
+    value: 1
+  });
 };
 </script>
 
