@@ -94,7 +94,7 @@
 </template>
 
 
-<script>
+<script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 // ------------------- 真实 Matomo 事件发送 -------------------
