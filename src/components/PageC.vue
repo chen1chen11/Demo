@@ -24,34 +24,59 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { trackEvent, sendMatomoEvent, sendGA4Event, globalUserId as userId } from '../util/tracking'
+import {
+  trackEvent,
+  sendMatomoEvent,
+  sendGA4Event,
+  globalUserId as userId
+} from '../util/tracking'  // 注意路径是 utils，不是 util
 
 const router = useRouter()
-const userId = ref(`user_${Math.floor(Math.random() * 10000)}`)
 const task = ref(null)
+const startTime = ref(Date.now())  // 新增：定义 startTime
 
 onMounted(() => {
-   startTime.value = Date.now()
+  startTime.value = Date.now()
+
   // 从 sessionStorage 获取选中的任务
   const storedTask = sessionStorage.getItem('selectedTask')
   if (storedTask) {
     task.value = JSON.parse(storedTask)
   }
 
+  // 界面日志：页面浏览
   trackEvent('page_view', { page: 'C', task_id: task.value?.id })
-  sendMatomoEvent('page', 'view', 'C', 1)
-  sendGA4Event('page_view', { page_title: 'C', task_id: task.value?.id })
+
+  // 🔥 Matomo 目标转化（请将 1 替换为你的实际目标 ID）
+  if (window._paq) {
+    window._paq.push(['trackGoal', 1])  // 确保目标 ID 正确
+  }
+
+  // 可选：仍然发送自定义事件（如果不希望重复，可以注释掉下面两行）
+  // sendMatomoEvent('page', 'view', 'C', 1)
+  // sendGA4Event('page_view', { page_title: 'C', task_id: task.value?.id })
+})
+
+onBeforeUnmount(() => {
+  const duration = Math.round((Date.now() - startTime.value) / 1000)
+  // 记录日志（界面日志）
+  trackEvent('page_duration', { page: 'C', duration_seconds: duration })
+  // 发送给 Matomo 和 GA4（使用正确的页面标识）
+  sendMatomoEvent('page', 'duration', '页面C', duration)
+  sendGA4Event('page_duration', { page_title: 'C', value: duration })
 })
 
 const completeTask = () => {
+  if (!task.value) return  // 避免空任务报错
+
   trackEvent('task_complete', { task_id: task.value.id, task_title: task.value.title })
   sendMatomoEvent('task', 'complete', task.value.title, task.value.id)
   sendGA4Event('task_complete', { task_id: task.value.id, task_title: task.value.title })
-  // 可以清空 sessionStorage 或标记已完成
+
+  // 清空 sessionStorage 并跳转
   sessionStorage.removeItem('selectedTask')
-  // 跳转到A或B（这里示例跳转到A）
   router.push('/a')
 }
 
@@ -68,14 +93,6 @@ const goToB = () => {
   sendGA4Event('navigate', { from: 'C', to: 'B' })
   router.push('/b')
 }
-
-onBeforeUnmount(() => {
-  const duration = Math.round((Date.now() - startTime.value) / 1000)
-  // 记录日志（可选）
-  trackEvent('page_duration', { page: 'B', duration_seconds: duration }) // 根据实际页面修改
-  sendMatomoEvent('page', 'duration', '页面B', duration) // 修改页面标识
-  sendGA4Event('page_duration', { page_title: 'B', value: duration })
-})
 </script>
 
 <style scoped>

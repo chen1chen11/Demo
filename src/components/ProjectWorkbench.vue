@@ -2,11 +2,11 @@
   <div class="workbench-container">
     <!-- 头部信息 -->
     <header class="header">
-      <h1>📘 工作台 · 埋点测试 Demo</h1>
+      <h1>📘 工作台 · 埋点测试 Demo (页面A)</h1>
       <p class="user-info">当前测试用户 ID：<strong>{{ userId }}</strong> (固定于本次会话)</p>
     </header>
 
-      <!-- 导航按钮区域 -->
+    <!-- 导航按钮区域 -->
     <div class="nav-buttons">
       <button class="nav-btn primary" @click="goToB">🚀 前往任务广场 (B)</button>
       <button class="nav-btn secondary" @click="goToC">⚡ 直接完成任务 (C)</button>
@@ -25,9 +25,9 @@
       <button class="clear-btn" @click="clearLogs">清除日志</button>
     </section>
 
-    <!-- 卡片区域：模拟项目进度与动态工作流 -->
+    <!-- 卡片区域：模拟项目进度与动态工作流（保持不变） -->
     <div class="cards-grid">
-      <!-- 卡片 1：项目进度卡片 -->
+      <!-- 项目进度卡片 -->
       <div class="card">
         <div class="card-header">
           <h2>📌 项目进度</h2>
@@ -35,46 +35,28 @@
         </div>
         <p class="card-desc">页面加载自动触发 PV/UV/停留开始</p>
 
-        <!-- 视图切换（我的收藏 / 近期任务） -->
+        <!-- 视图切换 -->
         <div class="view-tabs">
-          <button
-            class="tab-btn"
-            :class="{ active: activeView === 'collect' }"
-            @click="handleExistClick('我的收藏', 'collect')"
-          >
-            ⭐ 我的收藏
-          </button>
-          <button
-            class="tab-btn"
-            :class="{ active: activeView === 'recent' }"
-            @click="handleExistClick('近期任务', 'recent')"
-          >
-            🕒 近期任务
-          </button>
+          <button class="tab-btn" :class="{ active: activeView === 'collect' }" @click="handleExistClick('我的收藏', 'collect')">⭐ 我的收藏</button>
+          <button class="tab-btn" :class="{ active: activeView === 'recent' }" @click="handleExistClick('近期任务', 'recent')">🕒 近期任务</button>
         </div>
 
         <!-- 任务列表 -->
         <div class="task-list">
           <div v-for="task in projectTasks" :key="task.id" class="task-item">
             <span class="task-name">{{ task.name }}</span>
-            <button class="enter-btn" @click="handleEnterTask(task, 'project')">
-              进入任务
-            </button>
+            <button class="enter-btn" @click="handleEnterTask(task, 'project')">进入任务</button>
           </div>
         </div>
 
         <!-- 操作按钮组 -->
         <div class="action-buttons">
-          <button class="action-btn" @click="handleAddView">
-            <span>➕</span> 新增视图 (卡片内添加视图)
-          </button>
-          <button class="action-btn" @click="handleAddTaskToView">
-            <span>📝</span> 视图内添加任务
-          </button>
+          <button class="action-btn" @click="handleAddView"><span>➕</span> 新增视图</button>
+          <button class="action-btn" @click="handleAddTaskToView"><span>📝</span> 视图内添加任务</button>
         </div>
       </div>
 
-      <!-- 卡片 2：动态工作流卡片 -->
+      <!-- 动态工作流卡片 -->
       <div class="card">
         <div class="card-header">
           <h2>⚡ 动态工作流</h2>
@@ -83,53 +65,33 @@
         <div class="task-list">
           <div v-for="task in workflowTasks" :key="task.id" class="task-item">
             <span class="task-name">{{ task.name }}</span>
-            <button class="enter-btn" @click="handleEnterTask(task, 'workflow')">
-              进入任务 (动态)
-            </button>
+            <button class="enter-btn" @click="handleEnterTask(task, 'workflow')">进入任务 (动态)</button>
           </div>
         </div>
         <p class="hint">点击上方按钮触发 dynamic_workflow_enter_task 埋点</p>
       </div>
     </div>
 
-    <!-- 底部提示 -->
     <footer class="footer">
       <p>🖱️ 所有交互均已埋点，请打开控制台查看完整事件输出。</p>
     </footer>
   </div>
 </template>
 
-
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import {
-  trackEvent,          // 假设这是从 utils 导入的真实埋点函数（可能调用 Matomo/GA4）
+  trackEvent,          // 仅用于界面日志（已确保不会发送真实数据）
   sendMatomoEvent,
   sendGA4Event,
   globalUserId as userId
-} from '../util/tracking'
+} from '../utils/tracking'   // 注意路径：utils 而不是 util
 
-// ------------------- 响应式数据 -------------------
 const router = useRouter()
-const userId = ref(`blog_tester_${Math.floor(Math.random() * 10000)}`)
 const startTime = ref(Date.now())
-const activeView = ref('recent')        // 只保留一个
-const eventLogs = ref([])                // 界面日志
-
-// ------------------- 界面日志函数（非埋点，仅用于展示） -------------------
-function addLog(eventName, params = {}) {
-  eventLogs.value.unshift({
-    time: new Date().toLocaleTimeString('en-US', { hour12: false }),
-    event: eventName,
-    params: { ...params, timestamp: Date.now() }
-  })
-}
-
-// 清除日志
-const clearLogs = () => {
-  eventLogs.value = []
-}
+const activeView = ref('recent')
+const eventLogs = ref([])    // 界面日志数据
 
 // 项目卡片任务列表
 const projectTasks = ref([
@@ -137,60 +99,51 @@ const projectTasks = ref([
   { id: 'p2', name: '评审设计稿' },
   { id: 'p3', name: '修复线上Bug' }
 ])
-
 const workflowTasks = ref([
   { id: 'w1', name: '代码审查' },
   { id: 'w2', name: '部署测试环境' }
 ])
 
+// 清除日志
+const clearLogs = () => {
+  eventLogs.value = []
+}
+
 // ------------------- 生命周期 -------------------
 onMounted(() => {
-  // 调用真实埋点
+  // 界面日志（仅显示）
   trackEvent('project_view', {
-    page: 'project',
-    block: 'all',
-    seat: 'view',
-    pv_count: 1
+    page: 'project', block: 'all', seat: 'view', pv_count: 1
   })
-  // 记录界面日志
-  addLog('project_view', { page: 'project', block: 'all', seat: 'view', pv_count: 1 })
-
   trackEvent('project_view_user_id', {
-    page: 'project',
-    block: 'user',
-    seat: 'view',
-    uv_count: 1,
-    user_id: userId.value
+    page: 'project', block: 'user', seat: 'view', uv_count: 1, user_id: userId.value
   })
-  addLog('project_view_user_id', { page: 'project', block: 'user', seat: 'view', uv_count: 1, user_id: userId.value })
-
   startTime.value = Date.now()
   trackEvent('project_view_workbench', {
-    page: 'project',
-    block: 'all',
-    seat: 'view',
-    view_start: startTime.value
+    page: 'project', block: 'all', seat: 'view', view_start: startTime.value
   })
-  addLog('project_view_workbench', { page: 'project', block: 'all', seat: 'view', view_start: startTime.value })
+
+  // 真实事件发送（页面浏览由基础代码自动完成，不需要额外发送，此处可注释）
+  // sendMatomoEvent('page', 'view', 'A', 1)
+  // sendGA4Event('page_view', { page_title: 'A' })
 })
 
 onBeforeUnmount(() => {
   const duration = Math.round((Date.now() - startTime.value) / 1000)
   
-  // 真实埋点
+  // 界面日志
   trackEvent('project_leave_workbench', {
     page: 'project', block: 'all', seat: 'view',
     duration_seconds: duration, view_start: startTime.value
   })
-  // sendMatomoEvent('project:all:view', 'page_duration', '停留时长', duration)
-  // sendGA4Event('page_duration', {
-  //   event_category: 'project:all:view',
-  //   event_label: '停留时长',
-  //   value: duration
-  // })
 
-  // 界面日志
-  addLog('project_leave_workbench', { duration_seconds: duration, view_start: startTime.value })
+  // 真实事件发送：停留时长
+  sendMatomoEvent('page', 'duration', '页面A', duration)
+  sendGA4Event('page_duration', {
+    event_category: 'page',
+    event_label: '页面A',
+    value: duration
+  })
 })
 
 // ------------------- 导航 -------------------
@@ -198,14 +151,12 @@ const goToB = () => {
   trackEvent('navigate_click', { from: 'A', to: 'B' })
   sendMatomoEvent('navigation', 'click', 'A_to_B', 1)
   sendGA4Event('navigate', { from: 'A', to: 'B' })
-  addLog('navigate_click', { from: 'A', to: 'B' })
   router.push('/b')
 }
 const goToC = () => {
   trackEvent('navigate_click', { from: 'A', to: 'C' })
   sendMatomoEvent('navigation', 'click', 'A_to_C', 1)
   sendGA4Event('navigate', { from: 'A', to: 'C' })
-  addLog('navigate_click', { from: 'A', to: 'C' })
   router.push('/c')
 }
 
@@ -220,7 +171,6 @@ const handleExistClick = (viewName, seatType) => {
     event_category: 'project:view',
     event_label: viewName
   })
-  addLog('project_exist_click', { page: 'project', block: 'view', seat: seatType, view_name: viewName })
 }
 
 const handleEnterTask = (task, source) => {
@@ -236,14 +186,13 @@ const handleEnterTask = (task, source) => {
       value: 1,
       task_id: task.id
     })
-    addLog('project_task_enter', { task_id: task.id, task_name: task.name })
   } else {
     trackEvent('dynamic_workflow_enter_task', {
       page: 'project', block: 'workflow', seat: 'task',
       enter_task: 1, task_id: task.id, task_name: task.name
     })
     sendMatomoEvent('workflow:task', 'enter_task', task.name, 1)
-    addLog('dynamic_workflow_enter_task', { task_id: task.id, task_name: task.name })
+    // GA4 事件也可以添加，这里省略
   }
 }
 
@@ -257,7 +206,6 @@ const handleAddView = () => {
     event_label: '新增视图',
     value: 1
   })
-  addLog('project_view_add_click', {})
 }
 
 const handleAddTaskToView = () => {
@@ -270,7 +218,6 @@ const handleAddTaskToView = () => {
     event_label: '视图内添加任务',
     value: 1
   })
-  addLog('project_view_task_add', {})
 }
 </script>
 

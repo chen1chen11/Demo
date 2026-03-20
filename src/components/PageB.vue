@@ -22,13 +22,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'  // 确保导入 onBeforeUnmount
 import { useRouter } from 'vue-router'
-import { trackEvent, sendMatomoEvent, sendGA4Event, globalUserId as userId } from '../util/tracking'
+import {
+  trackEvent,
+  sendMatomoEvent,
+  sendGA4Event,
+  globalUserId as userId
+} from '../util/tracking'  // 修正路径
 
 const router = useRouter()
-const globalUserId = ref(`user_${Math.floor(Math.random() * 10000)}`)
 const selectedTask = ref(null)
+const startTime = ref(Date.now())  // 新增：定义 startTime
 
 const availableTasks = ref([
   { id: 1, title: '撰写周报', description: '完成本周工作总结', reward: '⭐️ 10积分' },
@@ -39,8 +44,16 @@ const availableTasks = ref([
 onMounted(() => {
   startTime.value = Date.now()
   trackEvent('page_view', { page: 'B' })
-  sendMatomoEvent('page', 'view', 'B', 1)
-  sendGA4Event('page_view', { page_title: 'B' })
+  // 如果不想重复发送页面浏览事件，可以注释掉下面两行
+  // sendMatomoEvent('page', 'view', 'B', 1)
+  // sendGA4Event('page_view', { page_title: 'B' })
+})
+
+onBeforeUnmount(() => {
+  const duration = Math.round((Date.now() - startTime.value) / 1000)
+  trackEvent('page_duration', { page: 'B', duration_seconds: duration })
+  sendMatomoEvent('page', 'duration', '页面B', duration)
+  sendGA4Event('page_duration', { page_title: 'B', value: duration })
 })
 
 const selectTask = (task) => {
@@ -59,20 +72,12 @@ const goToA = () => {
 
 const goToC = () => {
   if (!selectedTask.value) return
-  // 将选中的任务信息传递给页面C（通过 sessionStorage 或路由参数）
   sessionStorage.setItem('selectedTask', JSON.stringify(selectedTask.value))
   trackEvent('navigate_click', { from: 'B', to: 'C', task_id: selectedTask.value.id })
   sendMatomoEvent('navigation', 'click', 'B_to_C', 1)
   sendGA4Event('navigate', { from: 'B', to: 'C', task_id: selectedTask.value.id })
   router.push('/c')
 }
-
-onBeforeUnmount(() => {
-  const duration = Math.round((Date.now() - startTime.value) / 1000)
-  trackEvent('page_duration', { page: 'B', duration_seconds: duration }) // 根据实际页面修改
-  sendMatomoEvent('page', 'duration', '页面B', duration) // 修改页面标识
-  sendGA4Event('page_duration', { page_title: 'B', value: duration })
-})
 </script>
 
 <style scoped>
