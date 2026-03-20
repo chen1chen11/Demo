@@ -86,7 +86,7 @@ import {
   sendMatomoEvent,
   sendGA4Event,
   globalUserId as userId
-} from '../utils/tracking'   // 注意路径：utils 而不是 util
+} from '../util/tracking'   // 注意路径：utils 而不是 util
 
 const router = useRouter()
 const startTime = ref(Date.now())
