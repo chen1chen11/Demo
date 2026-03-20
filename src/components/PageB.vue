@@ -24,10 +24,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { trackEvent, sendMatomoEvent, sendGA4Event } from '../util/tracking'
+import { trackEvent, sendMatomoEvent, sendGA4Event, globalUserId as userId } from '../util/tracking'
 
 const router = useRouter()
-const userId = ref(`user_${Math.floor(Math.random() * 10000)}`)
+const globalUserId = ref(`user_${Math.floor(Math.random() * 10000)}`)
 const selectedTask = ref(null)
 
 const availableTasks = ref([
@@ -37,6 +37,7 @@ const availableTasks = ref([
 ])
 
 onMounted(() => {
+  startTime.value = Date.now()
   trackEvent('page_view', { page: 'B' })
   sendMatomoEvent('page', 'view', 'B', 1)
   sendGA4Event('page_view', { page_title: 'B' })
@@ -65,6 +66,13 @@ const goToC = () => {
   sendGA4Event('navigate', { from: 'B', to: 'C', task_id: selectedTask.value.id })
   router.push('/c')
 }
+
+onBeforeUnmount(() => {
+  const duration = Math.round((Date.now() - startTime.value) / 1000)
+  trackEvent('page_duration', { page: 'B', duration_seconds: duration }) // 根据实际页面修改
+  sendMatomoEvent('page', 'duration', '页面B', duration) // 修改页面标识
+  sendGA4Event('page_duration', { page_title: 'B', value: duration })
+})
 </script>
 
 <style scoped>

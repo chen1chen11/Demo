@@ -26,13 +26,14 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { trackEvent, sendMatomoEvent, sendGA4Event } from '../util/tracking'
+import { trackEvent, sendMatomoEvent, sendGA4Event, globalUserId as userId } from '../util/tracking'
 
 const router = useRouter()
 const userId = ref(`user_${Math.floor(Math.random() * 10000)}`)
 const task = ref(null)
 
 onMounted(() => {
+   startTime.value = Date.now()
   // 从 sessionStorage 获取选中的任务
   const storedTask = sessionStorage.getItem('selectedTask')
   if (storedTask) {
@@ -67,6 +68,14 @@ const goToB = () => {
   sendGA4Event('navigate', { from: 'C', to: 'B' })
   router.push('/b')
 }
+
+onBeforeUnmount(() => {
+  const duration = Math.round((Date.now() - startTime.value) / 1000)
+  // 记录日志（可选）
+  trackEvent('page_duration', { page: 'B', duration_seconds: duration }) // 根据实际页面修改
+  sendMatomoEvent('page', 'duration', '页面B', duration) // 修改页面标识
+  sendGA4Event('page_duration', { page_title: 'B', value: duration })
+})
 </script>
 
 <style scoped>

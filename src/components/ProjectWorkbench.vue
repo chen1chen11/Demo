@@ -106,7 +106,8 @@ import { useRouter } from 'vue-router'
 import {
   trackEvent,          // 假设这是从 utils 导入的真实埋点函数（可能调用 Matomo/GA4）
   sendMatomoEvent,
-  sendGA4Event
+  sendGA4Event,
+  globalUserId as userId
 } from '../util/tracking'
 
 // ------------------- 响应式数据 -------------------
@@ -181,12 +182,12 @@ onBeforeUnmount(() => {
     page: 'project', block: 'all', seat: 'view',
     duration_seconds: duration, view_start: startTime.value
   })
-  sendMatomoEvent('project:all:view', 'page_duration', '停留时长', duration)
-  sendGA4Event('page_duration', {
-    event_category: 'project:all:view',
-    event_label: '停留时长',
-    value: duration
-  })
+  // sendMatomoEvent('project:all:view', 'page_duration', '停留时长', duration)
+  // sendGA4Event('page_duration', {
+  //   event_category: 'project:all:view',
+  //   event_label: '停留时长',
+  //   value: duration
+  // })
 
   // 界面日志
   addLog('project_leave_workbench', { duration_seconds: duration, view_start: startTime.value })

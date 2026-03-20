@@ -30,3 +30,14 @@ export const sendGA4Event = (eventName, params = {}) => {
     console.warn('gtag not found')
   }
 }
+
+const generateUserId = () => {
+  let id = localStorage.getItem('test_user_id')
+  if (!id) {
+    id = `user_${Math.random().toString(36).substring(2, 10)}`
+    localStorage.setItem('test_user_id', id)
+  }
+  return id
+}
+
+export const globalUserId = ref(generateUserId())
