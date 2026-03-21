@@ -15,4 +15,19 @@ const router = createRouter({
   routes
 })
 
+// 在每次路由切换后向 Matomo 发送页面视图
+router.afterEach((to) => {
+  if (to.meta.title) {
+    document.title = to.meta.title
+  }
+
+  // 调用 Matomo 页面跟踪
+  if (window._paq) {
+    window._paq.push(['setCustomUrl', to.fullPath])
+    window._paq.push(['trackPageView'])
+  } else {
+    console.warn('Matomo _paq 未加载，无法发送页面视图')
+  }
+})
+
 export default router
