@@ -21,6 +21,15 @@ router.afterEach((to) => {
     document.title = to.meta.title
   }
 
+  if (window._paq) {
+    // 显式告诉 Matomo 当前页面的标题
+    window._paq.push(['setDocumentTitle', title])
+    window._paq.push(['setCustomUrl', to.fullPath])
+    window._paq.push(['trackPageView'])
+  } else {
+    console.warn('Matomo _paq 未加载，无法发送页面视图')
+  }
+  
   // 调用 Matomo 页面跟踪
   if (window._paq) {
     window._paq.push(['setCustomUrl', to.fullPath])
