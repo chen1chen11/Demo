@@ -151,12 +151,26 @@ const goToB = () => {
   trackEvent('navigate_click', { from: 'A', to: 'B' })
   sendMatomoEvent('navigation', 'click', 'A_to_B', 1)
   sendGA4Event('navigate', { from: 'A', to: 'B' })
+
+  if (window.collectEvent) {
+    window.collectEvent('track', 'navigate', {
+      from: 'A',
+      to: 'B'
+    });
+  }
   router.push('/b')
 }
 const goToC = () => {
   trackEvent('navigate_click', { from: 'A', to: 'C' })
   sendMatomoEvent('navigation', 'click', 'A_to_C', 1)
   sendGA4Event('navigate', { from: 'A', to: 'C' })
+
+  if (window.collectEvent) {
+    window.collectEvent('track', 'navigate', {
+      from: 'A',
+      to: 'C'
+    });
+  }
   router.push('/c')
 }
 

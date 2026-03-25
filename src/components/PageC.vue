@@ -54,9 +54,13 @@ onMounted(() => {
     window._paq.push(['trackGoal', 1])  // 确保目标 ID 正确
   }
 
-  // 可选：仍然发送自定义事件（如果不希望重复，可以注释掉下面两行）
-  // sendMatomoEvent('page', 'view', 'C', 1)
-  // sendGA4Event('page_view', { page_title: 'C', task_id: task.value?.id })
+ if (window.collectEvent) {
+    window.collectEvent('track', 'view_pageC', {
+      page_title: '任务详情',
+      task_id: task.value?.id,
+      task_name: task.value?.title,
+    });
+  }
 })
 
 onBeforeUnmount(() => {
@@ -75,6 +79,12 @@ const completeTask = () => {
   sendMatomoEvent('task', 'complete', task.value.title, task.value.id)
   sendGA4Event('task_complete', { task_id: task.value.id, task_title: task.value.title })
 
+   if (window.collectEvent) {
+    window.collectEvent('track', 'task_complete', {
+      task_id: task.value.id,
+      task_title: task.value.title,
+    });
+  }
   // 清空 sessionStorage 并跳转
   sessionStorage.removeItem('selectedTask')
   router.push('/a')

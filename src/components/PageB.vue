@@ -76,6 +76,14 @@ const goToC = () => {
   trackEvent('navigate_click', { from: 'B', to: 'C', task_id: selectedTask.value.id })
   sendMatomoEvent('navigation', 'click', 'B_to_C', 1)
   sendGA4Event('navigate', { from: 'B', to: 'C', task_id: selectedTask.value.id })
+
+   if (window.collectEvent) {
+    window.collectEvent('track', 'navigate', {
+      from: 'B',
+      to: 'C',
+      task_id: selectedTask.value.id
+    });
+  }
   router.push('/c')
 }
 </script>
