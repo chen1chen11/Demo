@@ -85,13 +85,13 @@ import {
   trackEvent,          // 仅用于界面日志（已确保不会发送真实数据）
   sendMatomoEvent,
   sendGA4Event,
-  globalUserId as userId
+  globalUserId as userId,
+  eventLogs  
 } from '../util/tracking'   // 注意路径：utils 而不是 util
 
 const router = useRouter()
 const startTime = ref(Date.now())
 const activeView = ref('recent')
-const eventLogs = ref([])    // 界面日志数据
 
 // 项目卡片任务列表
 const projectTasks = ref([
