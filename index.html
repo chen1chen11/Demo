@@ -17,11 +17,11 @@
 </script>
 <script>
   window.collectEvent = window.collectEvent || [];
-  (function() {
-    var url = 'https://mcs.volces.com';  // SaaS 数据接收地址，固定不变
-    window.collectEvent('init', 'b4e97163acb3445f201ff1e7c241877f399344d3730b9396698860994eb45484', { server_url: url });
-  })();
+  window.collectEvent.push(['init', 'b4e97163acb3445f201ff1e7c241877f399344d3730b9396698860994eb45484', {
+    server_url: 'https://mcs.volces.com'
+  }]);
 </script>
+<script async src="https://lf3-data.volccdn.com/obj/data-static/log-sdk/collect/collect-autotrack.js"></script>
 <script async src="https://lf3-data.volccdn.com/obj/data-static/log-sdk/collect/collect-autotrack.js"></script>
 <script>
 var _czc = _czc || [];
