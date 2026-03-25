@@ -37,6 +37,13 @@ router.afterEach((to) => {
   } else {
     console.warn('百度统计 _hmt 未加载')
   }
+
+   if (window.collectEvent) {
+    window.collectEvent('track', '$pageview', {
+      $url: to.fullPath,      // 当前路由路径，如 /a, /b, /c
+      $title: to.meta.title   // 页面标题
+    });
+  }
 })
 
 export default router
