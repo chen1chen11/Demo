@@ -15,9 +15,9 @@ const router = createRouter({
   routes
 })
 
-// 在每次路由切换后，同时通知 Matomo 和百度统计
+// 在每次路由切换后，同时通知 Matomo、火山引擎、Umami 和 PostHog
 router.afterEach((to) => {
-  // 1. 更新页面标题（如果你使用了 meta.title）
+  // 1. 更新页面标题（如果使用了 meta.title）
   if (to.meta.title) {
     document.title = to.meta.title
   }
@@ -31,18 +31,28 @@ router.afterEach((to) => {
     console.warn('Matomo _paq 未加载')
   }
 
-  // 3. 百度统计 SPA 跟踪
-  if (window._hmt) {
-    window._hmt.push(['_trackPageview', to.fullPath])
-  } else {
-    console.warn('百度统计 _hmt 未加载')
+  // 3. 火山引擎增长分析 SPA 跟踪
+  if (window.collectEvent) {
+    window.collectEvent('track', '$pageview', {
+      $url: to.fullPath,
+      $title: to.meta.title
+    })
   }
 
-   if (window.collectEvent) {
-    window.collectEvent('track', '$pageview', {
-      $url: to.fullPath,      // 当前路由路径，如 /a, /b, /c
-      $title: to.meta.title   // 页面标题
-    });
+  // 4. Umami SPA 跟踪
+  if (window.umami) {
+    window.umami.track({
+      url: to.fullPath,
+      title: to.meta.title
+    })
+  }
+
+  // 5. PostHog SPA 跟踪（新增）
+  if (window.posthog) {
+    window.posthog.capture('$pageview', {
+      path: to.fullPath,
+      title: to.meta.title
+    })
   }
 })
 

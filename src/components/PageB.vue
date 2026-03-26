@@ -67,6 +67,17 @@ const goToA = () => {
   trackEvent('navigate_click', { from: 'B', to: 'A' })
   sendMatomoEvent('navigation', 'click', 'B_to_A', 1)
   sendGA4Event('navigate', { from: 'B', to: 'A' })
+
+    if (window.umami) {
+    window.umami.track('navigate_to_a', { from: 'B', to: 'A' });
+  }
+
+   if (window.posthog) {
+    window.posthog.capture('navigate_to_b', {
+      from: 'B',
+      to: 'A'
+    });
+  }
   router.push('/a')
 }
 
@@ -83,6 +94,16 @@ const goToC = () => {
       to: 'C',
       task_id: selectedTask.value.id
     });
+  }
+   if (window.posthog) {
+    window.posthog.capture('navigate_to_c', {
+      from: 'B',
+      to: 'C',
+      task_id: selectedTask.value.id
+    });
+  }
+  if (window.umami) {
+    window.umami.track('navigate_to_c', { from: 'B', to: 'C', task_id: selectedTask.value.id });
   }
   router.push('/c')
 }
