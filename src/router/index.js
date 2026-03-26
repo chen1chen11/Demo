@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import ProjectWorkbench from '../components/ProjectWorkbench.vue'
 import PageB from '../components/PageB.vue'
 import PageC from '../components/PageC.vue'
+import posthog from 'posthog-js'
 
 const routes = [
   { path: '/', redirect: '/a' },
@@ -47,13 +48,11 @@ router.afterEach((to) => {
     })
   }
 
-  // 5. PostHog SPA 跟踪（新增）
-  if (window.posthog) {
-    window.posthog.capture('$pageview', {
-      path: to.fullPath,
-      title: to.meta.title
-    })
-  }
+  // 5. PostHog SPA 跟踪
+  posthog.capture('$pageview', {
+    path: to.fullPath,
+    title: to.meta.title
+  })
 })
 
 export default router

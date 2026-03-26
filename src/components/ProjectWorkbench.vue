@@ -81,12 +81,13 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
+import posthog from 'posthog-js'
 import {
   trackEvent,          // 仅用于界面日志（已确保不会发送真实数据）
   sendMatomoEvent,
   sendGA4Event,
   globalUserId as userId,
-  eventLogs  
+  eventLogs
 } from '../util/tracking'   // 注意路径：utils 而不是 util
 
 const router = useRouter()
@@ -158,6 +159,7 @@ const goToB = () => {
       to: 'B'
     });
   }
+  posthog.capture('navigate_click', { from: 'A', to: 'B' })
   router.push('/b')
 }
 const goToC = () => {
@@ -171,6 +173,7 @@ const goToC = () => {
       to: 'C'
     });
   }
+  posthog.capture('navigate_click', { from: 'A', to: 'C' })
   router.push('/c')
 }
 
@@ -200,6 +203,7 @@ const handleEnterTask = (task, source) => {
       value: 1,
       task_id: task.id
     })
+    posthog.capture('project_task_enter', { task_id: task.id, task_name: task.name })
   } else {
     trackEvent('dynamic_workflow_enter_task', {
       page: 'project', block: 'workflow', seat: 'task',
@@ -207,6 +211,7 @@ const handleEnterTask = (task, source) => {
     })
     sendMatomoEvent('workflow:task', 'enter_task', task.name, 1)
     // GA4 事件也可以添加，这里省略
+    posthog.capture('dynamic_workflow_enter_task', { task_id: task.id, task_name: task.name })
   }
 }
 
@@ -220,6 +225,7 @@ const handleAddView = () => {
     event_label: '新增视图',
     value: 1
   })
+  posthog.capture('project_view_add_click')
 }
 
 const handleAddTaskToView = () => {
@@ -232,6 +238,7 @@ const handleAddTaskToView = () => {
     event_label: '视图内添加任务',
     value: 1
   })
+  posthog.capture('project_view_task_add')
 }
 </script>
 
