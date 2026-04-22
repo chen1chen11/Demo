@@ -26,7 +26,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import posthog from 'posthog-js'
 import {
   trackEvent,
   sendMatomoEvent,
@@ -86,8 +85,6 @@ const completeTask = () => {
       task_title: task.value.title,
     });
   }
-  posthog.capture('task_complete', { task_id: task.value.id, task_title: task.value.title })
-  // 清空 sessionStorage 并跳转
   sessionStorage.removeItem('selectedTask')
   router.push('/a')
 }
@@ -99,8 +96,6 @@ const goToA = () => {
     if (window.umami) {
     window.umami.track('navigate_to_a', { from: 'C', to: 'A' });
   }
-
-  posthog.capture('navigate_click', { from: 'C', to: 'A' })
   router.push('/a')
 }
 
@@ -111,7 +106,6 @@ const goToB = () => {
   if (window.umami) {
     window.umami.track('navigate_to_b', { from: 'C', to: 'B' });
   }
-  posthog.capture('navigate_click', { from: 'C', to: 'B' })
   router.push('/b')
 }
 </script>

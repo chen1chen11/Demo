@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import ProjectWorkbench from '../components/ProjectWorkbench.vue'
 import PageB from '../components/PageB.vue'
 import PageC from '../components/PageC.vue'
-import posthog from 'posthog-js'
 
 const routes = [
   { path: '/', redirect: '/a' },
@@ -16,7 +15,7 @@ const router = createRouter({
   routes
 })
 
-// 在每次路由切换后，同时通知 Matomo、火山引擎、Umami 和 PostHog
+// 在每次路由切换后，同时通知 Matomo、火山引擎、Umami 
 router.afterEach((to) => {
   // 1. 更新页面标题（如果使用了 meta.title）
   if (to.meta.title) {
@@ -47,12 +46,6 @@ router.afterEach((to) => {
       title: to.meta.title
     })
   }
-
-  // 5. PostHog SPA 跟踪
-  posthog.capture('$pageview', {
-    path: to.fullPath,
-    title: to.meta.title
-  })
 })
 
 export default router

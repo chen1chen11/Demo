@@ -24,7 +24,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'  // 确保导入 onBeforeUnmount
 import { useRouter } from 'vue-router'
-import posthog from 'posthog-js'
 import {
   trackEvent,
   sendMatomoEvent,
@@ -62,7 +61,6 @@ const selectTask = (task) => {
   trackEvent('task_select', { task_id: task.id, task_title: task.title })
   sendMatomoEvent('task', 'select', task.title, task.id)
   sendGA4Event('task_select', { task_id: task.id, task_title: task.title })
-  posthog.capture('task_select', { task_id: task.id, task_title: task.title })
 }
 
 const goToA = () => {
@@ -74,7 +72,6 @@ const goToA = () => {
     window.umami.track('navigate_to_a', { from: 'B', to: 'A' });
   }
 
-  posthog.capture('navigate_click', { from: 'B', to: 'A' })
   router.push('/a')
 }
 
@@ -92,7 +89,6 @@ const goToC = () => {
       task_id: selectedTask.value.id
     });
   }
-  posthog.capture('navigate_click', { from: 'B', to: 'C', task_id: selectedTask.value.id })
   if (window.umami) {
     window.umami.track('navigate_to_c', { from: 'B', to: 'C', task_id: selectedTask.value.id });
   }
